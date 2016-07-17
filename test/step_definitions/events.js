@@ -57,11 +57,6 @@ module.exports = function () {
         callback();
     });
 
-    this.Then(/^the response contains (.*)$/, function (value, callback) {
-        //noop - nock will ensure this is true
-        callback();
-    });
-
     this.Given(/^I have a list of event ids I want details on$/, function (callback) {
         this.eventIds = [];
         for (var i = 0; i < 4; i++) {

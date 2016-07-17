@@ -2,16 +2,10 @@ var api = require("../../gettyimages-api");
 var nock = require("nock");
 
 module.exports = function () {
-
-    this.Given(/^I want a user's products$/, function (callback) {
-        callback();
-    });
-
     this.Given(/^I specify product field (.*)$/, function (field, callback) {
         if (!this.fields) {
             this.fields = [];
         }
-
         this.fields.push(field);
         callback();
     });
@@ -20,10 +14,41 @@ module.exports = function () {
         getProducts(this, callback);
     });
 
-    this.Then(/^I get a response back that has my user's product list$/, function (callback) {
-        // noop
-        callback();
+    this.Then(/^the response contains the user's product list$/, function (callback) {
+        // Write code here that turns the phrase above into concrete actions
+        if (this.response.products.length > 0) {
+            callback();
+        } else {
+            callback.fail("Expected a successful response");
+        }
     });
+
+    this.Then(/^I receive a successful response$/, function (callback) {
+        // Write code here that turns the phrase above into concrete actions
+        if (this.response.products) {
+            callback();
+        } else {
+            callback.fail("Expected a successful response");
+        }
+    });
+
+    this.Then(/^the products list is empty$/, function (callback) {
+        // Write code here that turns the phrase above into concrete actions
+        if (this.response.products.length === 0) {
+            callback();
+        } else {
+            callback.fail("Expected an empty products list");
+        }
+    });
+
+    this.Then(/^the response contains download_requirements$/, function (callback) {
+        if (this.response.products[0].download_requirements) {
+            callback();
+        } else {
+            callback.fail("Expected response to contain download_requirements");
+        }
+    });
+
 
     function getProducts(context, callback) {
         nock("https://api.gettyimages.com")
@@ -41,8 +66,31 @@ module.exports = function () {
                 refresh_token: "refreshtoken"
             })
             .get("/v3/products")
+            .matchHeader("Authorization", "Bearer client_credentials_access_token")
+            .reply(200, { "products": [] })
+            .get("/v3/products")
             .query({ fields: context.fields ? encodeURI(context.fields.join(",")) : null })
-            .reply(200, {"products": []})
+            .reply(200, {
+                "products": [{
+                    "application_website": "BDD Tests",
+                    "download_limit": null,
+                    "download_limit_duration": null,
+                    "download_limit_reset_utc_date": null,
+                    "downloads_remaining": null,
+                    "expiration_utc_date": "2020-01-12T08:00:00Z",
+                    "id": 2726,
+                    "name": null,
+                    "status": "active",
+                    "type": "premiumaccess",
+                    "download_requirements": {
+                        "is_note_required": false,
+                        "is_project_code_required": false,
+                        "project_codes": [
+                            "code1\ncode2"
+                        ]
+                    }
+                }]
+            });
 
         var client = new api({ apiKey: context.apikey, apiSecret: context.apisecret, username: context.username, password: context.password });
         var products = client.products();
@@ -52,8 +100,7 @@ module.exports = function () {
                 products = products.withResponseField(field);
             }, this);
         }
-        try
-        {
+        try {
             products.execute(function (err, response) {
                 context.error = err;
                 context.response = response;
