@@ -1,3 +1,4 @@
+"use strict";
 var api = require("../../gettyimages-api");
 var nock = require("nock");
 
@@ -26,51 +27,47 @@ module.exports = function () {
             var client = new api({ apiKey: context.apikey, apiSecret: context.apisecret, username: context.username, password: context.password })
                 .downloads()
                 .videos();
-
             if (context.id) {
                 client = client.withId(context.id);
             }
             if (context.size) {
                 client = client.withSize(context.size);
             }
-
             client.execute(function (err, response) {
                 if (err) {
-                    callback(err);
+                    return callback(err);
                 }
-                else {
-                    context.response = response;
-                    callback();
-                }
+                context.response = response;
+                return callback();
             });
-        }
-        catch (error) {
+        } catch (error) {
             context.error = error;
-            callback();
+            return callback();
         }
     });
 
     this.Then(/^I receive an exception$/, function (callback) {
         if (this.error) {
-            callback();
+            return callback();
         }
-        callback("Expected and exception");
+        return callback("Expected and exception");
     });
 
     this.Then(/^I receive not authorized message$/, function (callback) {
         // noop
-        callback();
+        return callback();
     });
 
     this.Then(/^the url for the video is returned$/, function (callback) {
         // noop
-        callback();
+        return callback();
     });
 
     this.Given(/^a download size$/, function (callback) {
         this.size = "HD1";
-        callback();
+        return callback();
     });
+    
     function getQuery(context) {
         var params = {
             auto_download: false

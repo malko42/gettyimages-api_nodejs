@@ -1,3 +1,4 @@
+"use strict";
 var api = require("../../gettyimages-api");
 var nock = require("nock");
 
@@ -47,7 +48,7 @@ module.exports = function () {
             .reply(getReplyCode(context), {});
 
         var client = new api({ apiKey: this.apikey, apiSecret: this.apisecret, username: this.username, password: this.password }).videos();
-        if (this.ids && this.ids.length == 1) {
+        if (this.ids && this.ids.length === 1) {
             client.withId(this.ids[0]);
         }
         if (this.ids && this.ids.length > 1) {
@@ -63,11 +64,10 @@ module.exports = function () {
         client.execute(function (err, response) {
             if (err) {
                 context.error = err;
-                callback();
-            } else {
-                context.response = response;
-                callback();
+                return callback();
             }
+            context.response = response;
+            return callback();
         });
     });
 
@@ -78,33 +78,31 @@ module.exports = function () {
 
     this.Then(/^an error is returned$/, function (callback) {
         if (this.error) {
-            callback();
+            return callback();
         }
-
-        callback("Expected an error");
+        return callback("Expected an error");
     });
 
     this.Then(/^the error explains that the video was not found$/, function (callback) {
         if (this.error.statusCode === 404) {
-            callback();
+            return callback();
         }
-        callback("Expected error to be 404");
-
+        return callback("Expected error to be 404");
     });
 
     this.Then(/^the status is success$/, function (callback) {
         // noop
-        callback();
+        return callback();
     });
 
     this.Then(/^the video metadata is returned$/, function (callback) {
         // noop
-        callback();
+        return callback();
     });
 
     this.Then(/^the caption field is returned$/, function (callback) {
         // noop
-        callback();
+        return callback();
     });
 
     function getPath(context) {
@@ -128,10 +126,9 @@ module.exports = function () {
     }
 
     function getReplyCode(context) {
-        if (context.ids && context.ids[0] == "invalid_id") {
+        if (context.ids && context.ids[0] === "invalid_id") {
             return 404;
-        } else {
-            return 200;
         }
+        return 200;
     }
 };

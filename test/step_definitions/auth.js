@@ -1,3 +1,4 @@
+"use strict";
 var api = require("../../gettyimages-api");
 var nock = require("nock");
 
@@ -52,7 +53,7 @@ module.exports = function () {
         var client = new api({ apiKey: this.apikey, apiSecret: this.apisecret, username: this.username, password: this.password, refreshToken: this.refreshToken }, null);
         client.getAccessToken(function (err, response) {
             if (err) {
-                callback(err);
+                return callback(err);
             }
             context.accessToken = response.access_token;
             context.tokenType = response.token_type;
@@ -64,10 +65,9 @@ module.exports = function () {
 
     this.Then(/^a(n)? (access )?token is returned$/, function (a, b, callback) {
         if (this.accessToken.length > 0) {
-            callback();
-        } else {
-            callback(new Error("Expected an access token to be returned."));
+            return callback();
         }
+        return callback(new Error("Expected an access token to be returned."));
     });
 
     this.Given(/^a refresh token$/, function (callback) {
@@ -80,7 +80,7 @@ module.exports = function () {
         var client = new api({ apiKey: this.apikey, apiSecret: this.apisecret, username: this.username, password: this.password, refreshToken: this.refreshToken }, null);
         client.getAccessToken(function (err, response) {
             if (err) {
-                callback(err);
+                return callback(err);
             }
             context.accessToken = response.access_token;
             context.tokenType = response.token_type;

@@ -1,5 +1,5 @@
 //Provides global context support for cucumber
-
+"use strict";
 function World() {
     this.apikey = "";
     this.apisecret = "";

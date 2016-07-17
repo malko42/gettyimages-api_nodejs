@@ -1,15 +1,16 @@
+"use strict";
 var Api = require("../../gettyimages-api");
 var nock = require("nock");
 
 module.exports = function () {
+    var context = this;
     this.When(/^I retrieve collections$/, function (callback) {
-        var testCredentials = { 
+        var testCredentials = {
             apiKey: this.apikey,
             apiSecret: this.apisecret,
             username: this.username,
             password: this.password
         };
-        
         nock("https://api.gettyimages.com")
             .post("/oauth2/token", "client_id=apikey&client_secret=apisecret&grant_type=client_credentials")
             .reply(200, {
@@ -32,20 +33,17 @@ module.exports = function () {
             .get("/v3/collections")
             .matchHeader("Authorization", "Bearer resource_owner_access_token")
             .reply(200, {});
-        try
-        {
+        try {
             var client = new Api(testCredentials);
             client.collections().execute(function (err, response) {
                 if (err) {
-                    callback(err);
-                } else {
-                    this.response = response;
-                    callback();
+                    return callback(err);
                 }
+                context.response = response;
+                return callback();
             });
-        }
-        catch (err) {
-            callback(err);
+        } catch (err) {
+            return callback(err);
         }
     });
 
@@ -54,7 +52,6 @@ module.exports = function () {
     });
 
     this.Then(/^I receive collection details$/, function (callback) {
-        // Write code here that turns the phrase above into concrete actions
         callback();
     });
 };

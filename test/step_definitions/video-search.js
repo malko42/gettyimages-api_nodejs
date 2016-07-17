@@ -1,6 +1,10 @@
+"use strict";
 var api = require("../../gettyimages-api");
 var nock = require("nock");
-var expect = require("chai").expect;
+var chai = require("chai");
+var dirtyChai = require("dirty-chai");
+var expect = chai.expect;
+chai.use(dirtyChai);
 
 function SetupAuthenticationMocking(nockInstance) {
     nockInstance.post("/oauth2/token", "client_id=apikey&client_secret=apisecret&username=username&password=password&grant_type=password")
@@ -98,8 +102,8 @@ module.exports = function () {
     });
 
     this.Then(/^the video search status is success$/, function (callback) {
-        expect(this.error).to.be.null;
-        expect(this.response).not.to.be.null;
+        expect(this.error).to.be.null();
+        expect(this.response).not.to.be.null();
         callback();
     });
 
@@ -173,12 +177,12 @@ module.exports = function () {
     
     function GetRouteForSearch(context) {
         switch (context.imageFamily) {
-            case "creative":
-                return "/v3/search/videos/creative";
-            case "editorial":
-                return "/v3/search/videos/editorial";
-            default:
-                return "/v3/search/videos";
+        case "creative":
+            return "/v3/search/videos/creative";
+        case "editorial":
+            return "/v3/search/videos/editorial";
+        default:
+            return "/v3/search/videos";
         }
     }
 

@@ -1,3 +1,4 @@
+"use strict";
 var api = require("../../gettyimages-api");
 var nock = require("nock");
 
@@ -7,7 +8,7 @@ module.exports = function () {
             this.fields = [];
         }
         this.fields.push(field);
-        callback();
+        return callback();
     });
 
     this.When(/^I retrieve products$/, function (callback) {
@@ -17,36 +18,35 @@ module.exports = function () {
     this.Then(/^the response contains the user's product list$/, function (callback) {
         // Write code here that turns the phrase above into concrete actions
         if (this.response.products.length > 0) {
-            callback();
-        } else {
-            callback.fail("Expected a successful response");
+            return callback();
         }
+        return callback.fail("Expected a successful response");
     });
 
     this.Then(/^I receive a successful response$/, function (callback) {
         // Write code here that turns the phrase above into concrete actions
         if (this.response.products) {
-            callback();
-        } else {
-            callback.fail("Expected a successful response");
+            return callback();
         }
+        return callback.fail("Expected a successful response");
+
     });
 
     this.Then(/^the products list is empty$/, function (callback) {
         // Write code here that turns the phrase above into concrete actions
         if (this.response.products.length === 0) {
-            callback();
-        } else {
-            callback.fail("Expected an empty products list");
+            return callback();
         }
+        return callback.fail("Expected an empty products list");
+
     });
 
     this.Then(/^the response contains download_requirements$/, function (callback) {
         if (this.response.products[0].download_requirements) {
-            callback();
-        } else {
-            callback.fail("Expected response to contain download_requirements");
+            return callback();
         }
+        return callback.fail("Expected response to contain download_requirements");
+
     });
 
 
@@ -104,12 +104,11 @@ module.exports = function () {
             products.execute(function (err, response) {
                 context.error = err;
                 context.response = response;
-                callback();
+                return callback();
             });
-        }
-        catch (exception) {
+        } catch (exception) {
             context.error = exception;
-            callback();
+            return callback();
         }
     }
 };

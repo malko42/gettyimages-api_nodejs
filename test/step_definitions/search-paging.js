@@ -1,3 +1,4 @@
+"use strict";
 var api = require("../../gettyimages-api");
 var nock = require("nock");
 
@@ -63,11 +64,10 @@ module.exports = function () {
         }
         client.execute(function (err, response) {
             if (err) {
-                callback(err);
-            } else {
-                context.response = response;
-                callback();
+                return callback(err);
             }
+            context.response = response;
+            return callback();
         });
     }
     function getSearchQuery(context) {

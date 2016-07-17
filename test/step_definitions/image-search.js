@@ -1,3 +1,4 @@
+"use strict";
 var api = require("../../gettyimages-api");
 var nock = require("nock");
 
@@ -8,7 +9,7 @@ module.exports = function () {
         this.imageFamily = imageFamily;
         if (imageFamily === "creative") {
             this.search = client.creative();
-        } else if (imageFamily == "editorial") {
+        } else if (imageFamily === "editorial") {
             this.search = client.editorial();
         } else {
             this.search = client;
@@ -219,11 +220,10 @@ module.exports = function () {
 
         search.execute(function (err, response) {
             if (err) {
-                callback(err);
-            } else {
-                context.searchResponse = response;
-                callback();
+                return callback(err);
             }
+            context.searchResponse = response;
+            return callback();
         });
     }
 

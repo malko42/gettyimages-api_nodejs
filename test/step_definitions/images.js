@@ -1,3 +1,4 @@
+"use strict";
 var api = require("../../gettyimages-api");
 var nock = require("nock");
 
@@ -50,11 +51,10 @@ module.exports = function () {
 
     this.Then(/^the error explains that the image was not found$/, function (callback) {
         if (this.error && this.error.statusCode === 404) {
-            callback();
+            return callback();
         }
         callback("Expected error with status code 404");
     });
-
 
     function getDetails(context, callback) {
         nock("https://api.gettyimages.com")
@@ -93,24 +93,21 @@ module.exports = function () {
                 images = images.withResponseField(field);
             }, this);
         }
-        try
-        {
+        try {
             images.execute(function (err, response) {
                 context.error = err;
                 context.response = response;
                 callback();
             });
-        }
-        catch (exception) {
+        } catch (exception) {
             context.error = exception;
-            callback();
+            return callback();
         }
     }
     function getReplyStatusCode(context) {
         if (context.imageId === "invalid_id") {
             return 404;
-        } else {
-            return 200;
         }
+        return 200;
     }
 };

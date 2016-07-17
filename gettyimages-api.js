@@ -1,5 +1,4 @@
 "use strict";
-
 var Collections = require("./lib/collections");
 var Countries = require("./lib/countries");
 var Credentials = require("./lib/credentials");
@@ -11,7 +10,6 @@ var Purchases = require("./lib/purchases");
 var Search = require("./lib/search");
 var Sets = require("./lib/sets");
 var Videos = require("./lib/videos");
-
 var SdkException = require("./lib/sdkexception");
 
 const _hostName = new WeakMap();
@@ -19,25 +17,28 @@ const _credentialOptions = new WeakMap();
 const _credentials = new WeakMap();
 
 class GettyImagesApi {
-    
     get credentials() {
         return _credentialOptions.get(this);
     }
+
     set credentials(value) {
-        _credentialOptions.set(this,value);
+        _credentialOptions.set(this, value);
     }
+
     get creds() {
         return _credentials.get(this);
     }
+
     set creds(value) {
-        _credentials.set(this,value);
+        _credentials.set(this, value);
     }
-    
+
     get hostName() {
         return _hostName.get(this);
     }
+
     set hostName(value) {
-        _hostName.set(this,value);
+        _hostName.set(this, value);
     }
 
     constructor(credentials, hostName) {
@@ -58,15 +59,14 @@ class GettyImagesApi {
         this.creds = new Credentials(credentials.apiKey, credentials.apiSecret, credentials.username, credentials.password, credentials.refreshToken, hostName);
     }
 
-    getAccessToken(next) {
+    getAccessToken(callback) {
         var creds = this.creds;
-        
+
         creds.getAccessToken(function (err, accessToken) {
             if (err) {
-                next(err, null);
-            } else {
-                next(null, accessToken);
+                return callback(err, null);
             }
+            return callback(null, accessToken);
         });
     }
 

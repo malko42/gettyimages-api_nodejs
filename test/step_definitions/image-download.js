@@ -1,14 +1,22 @@
+"use strict";
 var Api = require("../../gettyimages-api");
 var nock = require("nock");
 
 module.exports = function () {
-    this.When(/^I request for any image to be downloaded$/,{timeout: 0}, function (callback) {
+    var context = this;
+    this.When(/^I request for any image to be downloaded$/, { timeout: 0 }, function (callback) {
         var context = this;
         var imageId = "123";
         nock("https://api.gettyimages.com")
             .post("/oauth2/token", "client_id=apikey&client_secret=apisecret&grant_type=password&username=username&password=password")
             .reply(200, {
                 access_token: "resource_owner_access_token",
+                token_type: "Bearer",
+                expires_in: "1800"
+            })
+            .post("/oauth2/token", "client_id=apikey&client_secret=apisecret&grant_type=client_credentials")
+            .reply(200, {
+                access_token: "client_credentials_access_token",
                 token_type: "Bearer",
                 expires_in: "1800"
             })
@@ -25,7 +33,7 @@ module.exports = function () {
         var client = new Api({ apiKey: this.apikey, apiSecret: this.apisecret, username: this.username, password: this.password });
         try {
             var download = client.downloads().images();
-        
+
             download = download.withId(imageId);
 
             if (context.fileType) {
@@ -38,29 +46,27 @@ module.exports = function () {
 
             download.execute(function (err, response) {
                 if (err) {
-                    callback(err);
-                } else {
-                    this.response = response;
-                    callback();
+                    return callback(err);
                 }
+                context.response = response;
+                return callback();
             });
-        }
-        catch (error) {
+        } catch (error) {
             context.error = error;
-            callback();
+            return callback();
         }
     });
 
     this.Then(/^I receive an error$/, function (callback) {
         if (this.error) {
-            callback();
+            return callback();
         }
         callback.fail();
     });
 
     this.Then(/^the url for the image is returned$/, function (callback) {
         if (this.error) {
-            callback(this.error.toString());
+            return callback(this.error.toString());
         }
         callback();
     });
